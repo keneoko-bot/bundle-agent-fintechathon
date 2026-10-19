@@ -374,8 +374,22 @@ async function cancelIntent(id) {
 // ---------- discover / groups ----------
 function getDeal(g) {
   showScreen("ask");
-  const input = $("#chat-input");
-  if (input) { input.value = `I need ${g.product.toLowerCase().replace(/ \(.*\)/, "")}`; input.focus(); }
+  resetChat();
+  const cat = state.catalog.find((p) => p.name === g.product);
+  if (!cat) { // not in the catalogue: fall back to describing it
+    const input = $("#chat-input");
+    if (input) { input.value = `I need ${g.product.toLowerCase().replace(/ \(.*\)/, "")}`; input.focus(); }
+    return;
+  }
+  // Pre-fill a mandate for THIS deal: cap a little above the group price, deadline
+  // a couple of days after it's ready — so the agent can join you straight in.
+  const cap = Math.ceil(g.price_cents / 100) + 3;
+  const ready = new Date(g.ready_by); ready.setDate(ready.getDate() + 2);
+  const neededBy = ready.toISOString().slice(0, 10);
+  const draft = { product_key: cat.product_key, product: g.product, variant: g.variant || null,
+    max_total: cap, needed_by: neededBy, allow_switch: true, open_request: false };
+  addBubble("bundle", `Great pick! Here's the ${g.product} deal — authorize your agent and it'll join you into the group.`, "Bundle");
+  addApproval({ draft, mode: "rule_based" });
 }
 
 async function loadHero() {
@@ -657,13 +671,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       acc.classList.toggle("open", !body.classList.contains("hidden"));
     });
   });
-  $("#chat-form").addEventListener("submit", (e) => {
-    e.preventDefault();
+  function submitChat() {
     const input = $("#chat-input");
     const text = input.value.trim();
     if (!text) return;
     input.value = "";
     sendChat(text);
+  }
+  $("#chat-form").addEventListener("submit", (e) => { e.preventDefault(); submitChat(); });
+  // Explicit Enter handler — guarantees pressing Enter sends (the bare form submit
+  // wasn't firing reliably, which made the chat look frozen).
+  $("#chat-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); submitChat(); }
   });
   $("#new-chat").addEventListener("click", resetChat);
   $("#student").addEventListener("change", (e) => {
