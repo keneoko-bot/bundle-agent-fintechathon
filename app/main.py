@@ -43,7 +43,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/", include_in_schema=False)
     def index():
-        return FileResponse(STATIC / "index.html")
+        # no-store so the single-page front end is always the latest during the
+        # competition build; the page is tiny, so there's no real cost.
+        return FileResponse(STATIC / "index.html", headers={"Cache-Control": "no-store"})
+
+    @app.middleware("http")
+    async def no_cache_static(request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/static/"):
+            response.headers["Cache-Control"] = "no-store"
+        return response
 
     return app
 
