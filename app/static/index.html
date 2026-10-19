@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bundle</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        <div class="wordmark">Bundle</div>
+        <div class="tagline">Group buys for students. Your agent, your limits.</div>
+      </div>
+    </div>
+    <div class="top-controls">
+      <span id="mode" class="pill">…</span>
+      <span id="clock" class="pill pill-plain">…</span>
+      <label class="student-pick">Acting as
+        <select id="student"></select>
+      </label>
+      <button id="reset" class="btn btn-ghost" type="button">Reset demo</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="col">
+      <div class="card chat">
+        <div class="card-head">
+          <h2>Ask Bundle</h2>
+          <button id="new-chat" class="btn btn-small btn-ghost" type="button">New request</button>
+        </div>
+        <div id="catalog" class="chips"></div>
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <form id="chat-form" class="chat-form">
+          <input id="chat-input" type="text" autocomplete="off"
+                 placeholder="e.g. I need detergent by Friday, any brand, keep my total under $15">
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>My requests</h2></div>
+        <div id="pending"></div>
+        <div id="requests" class="list"></div>
+      </div>
+    </section>
+
+    <section class="col">
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="groups" type="button">Groups</button>
+        <button class="tab" data-tab="savings" type="button">Savings</button>
+        <button class="tab" data-tab="notifications" type="button">Notifications</button>
+        <button class="tab" data-tab="lab" type="button">Lab</button>
+        <button class="tab" data-tab="activity" type="button">Agent activity</button>
+      </nav>
+
+      <div class="card tab-panel" id="tab-groups"></div>
+      <div class="card tab-panel hidden" id="tab-savings"></div>
+      <div class="card tab-panel hidden" id="tab-notifications"></div>
+      <div class="card tab-panel hidden" id="tab-lab"></div>
+      <div class="card tab-panel hidden" id="tab-activity"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
