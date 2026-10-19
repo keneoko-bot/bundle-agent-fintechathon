@@ -30,7 +30,7 @@ from app.models import (
     Tier,
 )
 
-PICKUP = "Bloomberg Center Lobby"
+PICKUP = core.DEFAULT_HOUSE_NAME  # one shared delivery destination for the whole house
 
 STUDENTS = [  # key, name, verified
     ("alex", "Alex Chen", True),
@@ -51,35 +51,52 @@ STUDENTS = [  # key, name, verified
     ("ben", "Ben Carter", True),
 ]
 
-PRODUCTS = {  # key: (product_key, name, variants, keywords)
-    "detergent": ("laundry-detergent", "Laundry Detergent", "liquid,pods", "detergent,laundry soap"),
-    "towels": ("paper-towels", "Paper Towels (12 rolls)", "", "paper towel,kitchen roll"),
-    "ramen": ("instant-ramen", "Instant Ramen (24-pack)", "", "ramen,instant noodle,noodle"),
-    "lamp": ("desk-lamp", "LED Desk Lamp", "", "desk lamp,lamp"),
-    "coffee": ("coffee-beans", "Coffee Beans (2 lb bag)", "", "coffee"),
-    "jacket": ("winter-jacket", "Winter Jacket", "small,medium,large", "jacket,winter coat,coat,parka"),
-    "toilet": ("toilet-paper", "Toilet Paper (24 rolls)", "", "toilet paper,toilet roll,loo roll"),
-    "dish": ("dish-soap", "Dish Soap (3-pack)", "", "dish soap,dishwashing liquid,washing up liquid"),
-    "printer": ("printer-paper", "Printer Paper (5 reams)", "", "printer paper,copy paper,paper ream"),
-    "rice": ("rice", "Jasmine Rice (20 lb bag)", "", "rice"),
+PRODUCTS = {  # key: (product_key, name, image, variants, keywords)
+    "detergent": ("laundry-detergent", "Laundry Detergent", "🧴", "liquid,pods", "detergent,laundry soap"),
+    "towels": ("paper-towels", "Paper Towels (12 rolls)", "🧻", "", "paper towel,kitchen roll"),
+    "ramen": ("instant-ramen", "Instant Ramen (24-pack)", "🍜", "", "ramen,instant noodle,noodle"),
+    "lamp": ("desk-lamp", "LED Desk Lamp", "💡", "", "desk lamp,lamp"),
+    "coffee": ("coffee-beans", "Coffee Beans (2 lb bag)", "☕", "", "coffee"),
+    "jacket": ("winter-jacket", "Winter Jacket", "🧥", "small,medium,large", "jacket,winter coat,coat,parka"),
+    "toilet": ("toilet-paper", "Toilet Paper (24 rolls)", "🚽", "", "toilet paper,toilet roll,loo roll"),
+    "dish": ("dish-soap", "Dish Soap (3-pack)", "🧼", "", "dish soap,dishwashing liquid,washing up liquid"),
+    "printer": ("printer-paper", "Printer Paper (5 reams)", "📄", "", "printer paper,copy paper,paper ream"),
+    "rice": ("rice", "Jasmine Rice (20 lb bag)", "🍚", "", "rice"),
+}
+
+# Real bulk/wholesale suppliers near Cornell Tech (Roosevelt Island, NYC), with real locations.
+# Prices below are simulated for the demo; no real orders are placed.
+SUPPLIER_LOCATION = {
+    "Costco Business Center": "Brooklyn, NY",
+    "BJ's Wholesale Club": "Bronx, NY",
+    "Amazon Business": "Ships to NYC",
+    "Target": "Manhattan, NY",
+    "Staples": "Manhattan, NY",
+    "Jetro Cash & Carry": "Hunts Point, Bronx",
+    "Wayfair": "Ships to NYC",
+    "Porto Rico Importing Co.": "Lower Manhattan, NY",
+    "REI Co-op": "SoHo, NY",
+    "Dick's Sporting Goods": "Manhattan, NY",
+    "Restaurant Depot": "Long Island City, NY",
+    "H Mart": "Koreatown, Manhattan",
 }
 
 # key, supplier, product, brand, solo pre-tax, group pre-tax, min buyers, variant  (all-in in comments)
 OFFERS = [
-    ("ecoclean", "EcoClean Bulk Supply", "detergent", "EcoClean", 1663, 1178, 4, "liquid"),  # 18.00 / 12.75
-    ("freshbulk", "FreshBulk Co", "detergent", "FreshBulk", 1663, 1285, 3, "liquid"),        # 18.00 / 13.91
-    ("cleanpod", "CleanPod Co", "detergent", "CleanPod", 1940, 1478, 4, "pods"),             # 21.00 / 16.00
-    ("campusmart_towels", "CampusMart", "towels", "CampusMart", 1290, 840, 3, None),         # 13.96 / 9.09
-    ("paperplus_towels", "PaperPlus", "towels", "PaperPlus", 1290, 776, 3, None),            # 13.96 / 8.40
-    ("noodlehouse", "NoodleHouse Wholesale", "ramen", "NoodleHouse", 1478, 1016, 4, None),   # 16.00 / 11.00
-    ("brightdesk", "BrightDesk Supply", "lamp", "BrightDesk", 2402, 2217, 3, None),          # 26.00 / 24.00
-    ("island", "Island Roasters", "coffee", "Island Roasters", 2679, 2125, 4, None),         # 29.00 / 23.00
-    ("northpeak", "NorthPeak Outfitters", "jacket", "NorthPeak", 11085, 8222, 5, None),      # 120.00 / 89.00
-    ("summit", "Summit Supply", "jacket", "Summit", 11085, 8776, 3, None),                   # 120.00 / 95.00
-    ("pantrypal_tp", "PantryPal Wholesale", "toilet", "PantryPal", 2448, 1755, 3, None),     # 26.50 / 19.00
-    ("pantrypal_dish", "PantryPal Wholesale", "dish", "PantryPal", 1201, 831, 3, None),      # 13.00 / 9.00
-    ("campusmart_paper", "CampusMart", "printer", "CampusMart", 3233, 2587, 4, None),        # 35.00 / 28.00
-    ("grainhouse", "GrainHouse", "rice", "GrainHouse", 2771, 2125, 3, None),                 # 30.00 / 23.00
+    ("ecoclean", "Costco Business Center", "detergent", "Tide Original (150 oz)", 1663, 1178, 4, "liquid"),  # 18.00 / 12.75
+    ("freshbulk", "BJ's Wholesale Club", "detergent", "Tide Original (150 oz)", 1663, 1285, 3, "liquid"),    # 18.00 / 13.91
+    ("cleanpod", "Amazon Business", "detergent", "Tide PODS (81 ct)", 1940, 1478, 4, "pods"),               # 21.00 / 16.00
+    ("campusmart_towels", "Target", "towels", "Bounty Select-A-Size", 1290, 840, 3, None),                  # 13.96 / 9.09
+    ("paperplus_towels", "Staples", "towels", "Bounty Select-A-Size", 1290, 776, 3, None),                  # 13.96 / 8.40
+    ("noodlehouse", "Jetro Cash & Carry", "ramen", "Nissin Cup Noodles (24 pk)", 1478, 1016, 4, None),      # 16.00 / 11.00
+    ("brightdesk", "Wayfair", "lamp", "TaoTronics LED Lamp", 2402, 2217, 3, None),                          # 26.00 / 24.00
+    ("island", "Porto Rico Importing Co.", "coffee", "Lavazza Super Crema (2.2 lb)", 2679, 2125, 4, None),  # 29.00 / 23.00
+    ("northpeak", "REI Co-op", "jacket", "Columbia Powder Lite", 11085, 8222, 5, None),                     # 120.00 / 89.00
+    ("summit", "Dick's Sporting Goods", "jacket", "Columbia Powder Lite", 11085, 8776, 3, None),            # 120.00 / 95.00
+    ("pantrypal_tp", "Restaurant Depot", "toilet", "Charmin Ultra Soft (24 rolls)", 2448, 1755, 3, None),   # 26.50 / 19.00
+    ("pantrypal_dish", "Restaurant Depot", "dish", "Dawn Ultra (3 pk)", 1201, 831, 3, None),                # 13.00 / 9.00
+    ("campusmart_paper", "Target", "printer", "HP Printer Paper (5 reams)", 3233, 2587, 4, None),           # 35.00 / 28.00
+    ("grainhouse", "H Mart", "rice", "Three Ladies Jasmine (20 lb)", 2771, 2125, 3, None),                  # 30.00 / 23.00
 ]
 
 
@@ -93,6 +110,7 @@ def end_of(d: datetime) -> datetime:
 
 def seed(session: Session, start: datetime = DEFAULT_START) -> dict:
     core.set_now(session, start)
+    core.set_house(session, core.DEFAULT_HOUSE_NAME, core.DEFAULT_HOUSE_ADDRESS)
 
     students = {}
     for key, name, verified in STUDENTS:
@@ -102,13 +120,13 @@ def seed(session: Session, start: datetime = DEFAULT_START) -> dict:
     students["sam"].verification_code = "482913"
     session.add_all(students.values())
 
-    products = {k: Product(key=pk, name=name, variants_csv=v, keywords_csv=kw)
-                for k, (pk, name, v, kw) in PRODUCTS.items()}
+    products = {k: Product(key=pk, name=name, image=img, variants_csv=v, keywords_csv=kw)
+                for k, (pk, name, img, v, kw) in PRODUCTS.items()}
     session.add_all(products.values())
 
     suppliers: dict[str, Supplier] = {}
     for _, sup, *_rest in OFFERS:
-        suppliers.setdefault(sup, Supplier(name=sup))
+        suppliers.setdefault(sup, Supplier(name=sup, location=SUPPLIER_LOCATION.get(sup, "")))
     session.add_all(suppliers.values())
     session.flush()
 

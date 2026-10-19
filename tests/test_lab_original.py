@@ -20,7 +20,7 @@ def test_add_compatible_student_twice_completes_without_waiting(client):
 def test_disable_backup_supplier_then_deadline_cancels_and_charges_nobody(client):
     gid = client.ids["groups"]["detergent"]
     approve(client, client.ids["students"]["alex"])  # 3/4
-    client.post("/api/lab/disable-supplier", json={"supplier_name": "FreshBulk Co"})
+    client.post("/api/lab/disable-supplier", json={"supplier_name": "BJ's Wholesale Club"})
     story = client.post("/api/lab/trigger-deadline", json={"group_id": gid}).json()
     run = story["agent_runs"][0]
     assert tools_of(run)[-1] == "cancel_group"
@@ -46,7 +46,7 @@ def test_price_rise_switches_when_backup_fits_everyone(client):
     run = story["agent_runs"][0]
     assert "switch_group_supplier" in tools_of(run)
     group = story["groups"][0]
-    assert group["supplier"] == "FreshBulk Co"
+    assert group["supplier"] == "BJ's Wholesale Club"
     assert group["status"] == "FULFILLED"  # 3 buyers meets FreshBulk's minimum
 
 

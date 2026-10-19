@@ -68,7 +68,28 @@ def health(session: Session = Depends(get_session), settings: Settings = Depends
         "ok": True,
         "agent_mode": f"REAL_LLM ({llm.provider}/{llm.model})" if llm else "DETERMINISTIC_FALLBACK",
         "simulated_now": core.now(session).isoformat(),
+        "house": core.get_house(session),
     }
+
+
+class HouseIn(BaseModel):
+    name: str
+    address: str
+
+
+@router.get("/admin/house")
+def get_house(session: Session = Depends(get_session)):
+    return core.get_house(session)
+
+
+@router.post("/admin/house")
+def update_house(body: HouseIn, session: Session = Depends(get_session)):
+    """Admin sets the one shared delivery address for the whole house."""
+    if not body.name.strip() or not body.address.strip():
+        raise HTTPException(400, "House name and address are both required")
+    house = core.set_house(session, body.name, body.address)
+    core.audit(session, "admin", "house_updated", name=house["name"], address=house["address"])
+    return house
 
 
 @router.get("/catalog")
@@ -77,9 +98,10 @@ def catalog(session: Session = Depends(get_session)):
     for p in session.scalars(select(Product).order_by(Product.id)):
         offers = session.scalars(select(Offer).where(Offer.product_id == p.id).order_by(Offer.id))
         out.append({
-            "product_key": p.key, "name": p.name, "variants": p.variants,
+            "product_key": p.key, "name": p.name, "image": p.image, "variants": p.variants,
             "offers": [{
-                "offer_id": o.id, "supplier": o.supplier.name, "brand": o.brand, "variant": o.variant,
+                "offer_id": o.id, "supplier": o.supplier.name, "supplier_location": o.supplier.location,
+                "brand": o.brand, "variant": o.variant,
                 "solo_price": core.money(o.solo_all_in), "group_price": core.money(o.group_all_in),
                 "min_buyers": o.min_buyers, "available": engine.offer_usable(o),
             } for o in offers],

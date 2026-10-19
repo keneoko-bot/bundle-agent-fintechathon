@@ -109,7 +109,7 @@ def test_over_cap_groups_are_never_mentioned_as_skipped(client):
                                             "variant": "liquid", "max_total": 12, "needed_by": "2026-10-16"}).json()
     run = out["agent_run"]
     assert run["tool_calls"][0]["result"]["skipped"] == []
-    assert "$12.75" not in run["message"] and "EcoClean" not in run["message"]
+    assert "$12.75" not in run["message"] and "Costco Business Center" not in run["message"]
 
 
 def test_groups_show_ready_by_from_delivery_time(client):

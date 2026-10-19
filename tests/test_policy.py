@@ -3,7 +3,7 @@ from tests.conftest import ScriptedLLM, approve
 
 
 def test_all_in_cap_includes_tax(client):
-    # EcoClean's group price is $11.78 before tax but $12.75 all-in: a $12.00 cap must not join.
+    # Costco's group price is $11.78 before tax but $12.75 all-in: a $12.00 cap must not join.
     alex = client.ids["students"]["alex"]
     out = approve(client, alex, max_total=12.0)
     assert out["intent"]["group"] is None
@@ -83,7 +83,7 @@ def _two_open_towel_groups():
         ids = []
         for offer in s.scalars(select(Offer).where(Offer.product_id == towels.id).order_by(Offer.id)):
             g = Group(offer_id=offer.id, product_id=towels.id, deadline=core.now(s) + timedelta(hours=30),
-                      pickup="Bloomberg Center Lobby", status="FORMING", created_at=core.now(s))
+                      pickup="The House at Cornell Tech", status="FORMING", created_at=core.now(s))
             s.add(g)
             s.flush()
             _seat(s, g, spawn_intent(s, spawn_student(s), towels, cap_cents=1000))
@@ -110,7 +110,7 @@ def test_llm_cannot_pick_the_worse_group(client, use_llm):
     run = out["agent_run"]
     assert run["mode"] == "REAL_LLM (fake/scripted)"
     assert [c["allowed"] for c in run["tool_calls"]] == [True, False, True]
-    assert out["intent"]["group"]["supplier"] == "PaperPlus"  # the cheaper one
+    assert out["intent"]["group"]["supplier"] == "Staples"  # the cheaper one
 
 
 def test_llm_cannot_buy_a_group_that_is_not_full(client, use_llm):

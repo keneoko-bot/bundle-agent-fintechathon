@@ -5,16 +5,16 @@ from tests.conftest import approve, tools_of
 def test_two_groups_one_short_joins_cheaper(client):
     story = client.post("/api/lab/scenario/two-groups", json={"equal_prices": False}).json()
     by_supplier = {g["supplier"]: g for g in story["groups"]}
-    assert story["joined_group_id"] == by_supplier["PaperPlus"]["group_id"]  # $8.40 vs $9.09
-    assert by_supplier["PaperPlus"]["status"] == "FULFILLED"
-    assert by_supplier["CampusMart"]["status"] == "FORMING"  # left for other students' agents
+    assert story["joined_group_id"] == by_supplier["Staples"]["group_id"]  # $8.40 vs $9.09
+    assert by_supplier["Staples"]["status"] == "FULFILLED"
+    assert by_supplier["Target"]["status"] == "FORMING"  # left for other students' agents
 
 
 def test_two_groups_equal_price_joins_sooner_deadline(client):
     story = client.post("/api/lab/scenario/two-groups", json={"equal_prices": True}).json()
     by_supplier = {g["supplier"]: g for g in story["groups"]}
-    assert by_supplier["CampusMart"]["price_per_buyer"] == by_supplier["PaperPlus"]["price_per_buyer"]
-    assert story["joined_group_id"] == by_supplier["CampusMart"]["group_id"]  # 30h vs 40h
+    assert by_supplier["Target"]["price_per_buyer"] == by_supplier["Staples"]["price_per_buyer"]
+    assert story["joined_group_id"] == by_supplier["Target"]["group_id"]  # 30h vs 40h
 
 
 def test_better_deal_moves_whole_group_when_everyone_approved(client):
@@ -31,7 +31,7 @@ def test_better_deal_stays_when_someone_did_not_approve_switching(client):
     story = client.post("/api/lab/scenario/better-deal", json={"everyone_allows_switch": False}).json()
     run = story["agent_runs"][0]
     assert "move_whole_group" not in tools_of(run)
-    assert story["groups"][0]["supplier"] == "NoodleHouse Wholesale"
+    assert story["groups"][0]["supplier"] == "Jetro Cash & Carry"
     assert "staying in the current group" in run["message"]
 
 
@@ -53,7 +53,7 @@ def test_over_budget_offer_is_never_mentioned(client):
     run = story["agent_runs"][0]
     assert tools_of(run) == ["find_existing_groups", "find_offers", "keep_watching"]
     assert run["tool_calls"][1]["result"]["offers"] == []
-    assert "$24" not in run["message"] and "BrightDesk" not in run["message"]
+    assert "$24" not in run["message"] and "Wayfair" not in run["message"]
     assert "Nothing under $20.00 yet" in run["message"]
     assert story["intent"]["status"] == "WATCHING"
 
@@ -89,7 +89,7 @@ def test_prompt_injection_in_chat_is_ignored_and_logged(client):
 
 def test_prompt_injection_in_supplier_text_is_ignored_and_logged(client):
     story = client.post("/api/lab/scenario/prompt-injection", json={"channel": "supplier"}).json()
-    assert story["intent"]["group"]["supplier"] == "EcoClean Bulk Supply"
+    assert story["intent"]["group"]["supplier"] == "Costco Business Center"
     assert story["intent"]["group"]["price_per_buyer"] == "$12.75"
     events = client.get("/api/audit?event_type=injection_ignored").json()
     assert any("supplier offer" in e["details"]["source"] for e in events)

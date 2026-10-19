@@ -79,7 +79,7 @@ class Student(Base):
     email: Mapped[str] = mapped_column(String(200), unique=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     verification_code: Mapped[str | None] = mapped_column(String(12), nullable=True)
-    pickup_default: Mapped[str] = mapped_column(String(200), default="Bloomberg Center Lobby")
+    pickup_default: Mapped[str] = mapped_column(String(200), default="The House at Cornell Tech")
     card_fails: Mapped[bool] = mapped_column(Boolean, default=False)  # simulated card problem
     is_simulated: Mapped[bool] = mapped_column(Boolean, default=True)
 
@@ -88,6 +88,7 @@ class Supplier(Base):
     __tablename__ = "suppliers"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), unique=True)
+    location: Mapped[str] = mapped_column(String(120), default="")  # real store location, e.g. "Brooklyn, NY"
     active: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
@@ -96,6 +97,7 @@ class Product(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     key: Mapped[str] = mapped_column(String(60), unique=True)
     name: Mapped[str] = mapped_column(String(120))
+    image: Mapped[str] = mapped_column(String(8), default="")  # emoji used as the product image
     variants_csv: Mapped[str] = mapped_column(String(200), default="")  # e.g. "liquid,pods"
     keywords_csv: Mapped[str] = mapped_column(String(300), default="")
 

@@ -8,9 +8,34 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import AuditEvent, Notification, SimClock
+from app.models import AppMeta, AuditEvent, Notification, SimClock
 
 DEFAULT_START = datetime(2026, 10, 12, 10, 0)
+
+# The shared delivery destination for the whole house. Admin-configurable; every
+# group order is delivered here (no per-student pickup). Defaults seeded on first run.
+DEFAULT_HOUSE_NAME = "The House at Cornell Tech"
+DEFAULT_HOUSE_ADDRESS = "1 E Loop Rd, Roosevelt Island, New York, NY 10044"
+
+
+def get_house(session: Session) -> dict:
+    rows = {m.key: m.value for m in session.scalars(
+        select(AppMeta).where(AppMeta.key.in_(["house_name", "house_address"])))}
+    return {
+        "name": rows.get("house_name", DEFAULT_HOUSE_NAME),
+        "address": rows.get("house_address", DEFAULT_HOUSE_ADDRESS),
+    }
+
+
+def set_house(session: Session, name: str, address: str) -> dict:
+    for key, value in (("house_name", name.strip()), ("house_address", address.strip())):
+        row = session.get(AppMeta, key)
+        if row is None:
+            session.add(AppMeta(key=key, value=value))
+        else:
+            row.value = value
+    session.flush()
+    return get_house(session)
 
 
 class PolicyRefusal(Exception):

@@ -136,7 +136,7 @@ def trigger_deadline(body: GroupIn, session: Session = Depends(get_session),
 
 
 class SupplierIn(BaseModel):
-    supplier_name: str = "FreshBulk Co"
+    supplier_name: str = "BJ's Wholesale Club"
 
 
 @router.post("/disable-supplier")
@@ -307,7 +307,7 @@ def two_groups(body: TwoGroupsIn, session: Session = Depends(get_session),
                settings: Settings = Depends(get_settings)):
     towels = session.scalar(select(Product).where(Product.key == "paper-towels"))
     offers = {o.supplier.name: o for o in session.scalars(select(Offer).where(Offer.product_id == towels.id))}
-    sooner, later = offers["CampusMart"], offers["PaperPlus"]
+    sooner, later = offers["Target"], offers["Staples"]
     if body.equal_prices:
         sooner.group_unit_cents = later.group_unit_cents
     t = core.now(session)
@@ -467,7 +467,7 @@ def backup_supplier_gone(session: Session = Depends(get_session), settings: Sett
     """Replaces the old one-click 'Disable FreshBulk', which on its own showed nothing."""
     group = _group(session, None, "detergent")
     backup = session.scalar(select(Offer).join(Supplier).where(
-        Supplier.name == "FreshBulk Co", Offer.product_id == group.product_id))
+        Supplier.name == "BJ's Wholesale Club", Offer.product_id == group.product_id))
     while len(group.active_members) < 3:  # 3 buyers: enough for FreshBulk's minimum, not EcoClean's
         student = spawn_student(session)
         _seat(session, group, spawn_intent(session, student, group.product,

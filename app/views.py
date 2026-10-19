@@ -68,6 +68,27 @@ def intent_view(session: Session, intent: Intent) -> dict:
         order = session.scalar(select(Order).where(Order.group_id == intent.group_id))
         if order is not None and intent.status == "FULFILLED":
             view["order"] = {"order_id": order.id, "status": order.status, "pickup_code": order.pickup_code}
+
+    # Charge-on-fill lifecycle, made explicit for the student:
+    #   authorized  -> a mandate up to the cap; the card is NOT charged yet
+    #   charged     -> the group completed; the exact share was charged, never more than the cap
+    #   void        -> cancelled/expired; nothing was ever charged
+    charged_cents = 0
+    if intent.status == "FULFILLED":
+        pay_status = "charged"
+        entry = session.scalar(select(SavingsEntry).where(SavingsEntry.intent_id == intent.id))
+        charged_cents = entry.paid_cents if entry else intent.max_total_cents
+    elif intent.status in ("CANCELLED", "EXPIRED"):
+        pay_status = "void"
+    else:
+        pay_status = "authorized"
+    view["payment"] = {
+        "status": pay_status,
+        "authorized": money(intent.max_total_cents),
+        "authorized_cents": intent.max_total_cents,
+        "charged": money(charged_cents),
+        "charged_cents": charged_cents,
+    }
     return view
 
 

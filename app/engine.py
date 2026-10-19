@@ -65,12 +65,23 @@ def group_snapshot(group: Group) -> dict:
     return {
         "group_id": group.id,
         "product": group.product.name,
+        "product_image": group.product.image,
         "variant": offer.variant,
         "supplier": offer.supplier.name,
+        "supplier_location": offer.supplier.location,
         "brand": offer.brand,
         "price_per_buyer": money(offer.group_all_in),
         "price_cents": offer.group_all_in,
         "solo_price": money(offer.solo_all_in),
+        # Transparent per-buyer breakdown: item + tax (+ any flat fee) = all-in.
+        "breakdown": {
+            "item": money(offer.group_unit_cents),
+            "tax": money(round(offer.group_unit_cents * offer.tax_bp / 10_000)),
+            "tax_pct": round(offer.tax_bp / 100, 2),
+            "fee": money(offer.fee_cents),
+            "fee_cents": offer.fee_cents,
+            "all_in": money(offer.group_all_in),
+        },
         "buyers": len(group.active_members),
         "min_buyers": offer.min_buyers,
         "deadline": group.deadline.isoformat(),

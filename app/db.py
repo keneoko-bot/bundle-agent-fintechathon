@@ -48,7 +48,7 @@ def drop_all() -> None:
     Base.metadata.drop_all(get_engine())
 
 
-SCHEMA_VERSION = "4"  # bump when tables change; the demo database is rebuilt automatically
+SCHEMA_VERSION = "5"  # bump when tables change; the demo database is rebuilt automatically
 
 
 def ensure_schema() -> bool:

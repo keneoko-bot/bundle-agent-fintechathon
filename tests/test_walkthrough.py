@@ -12,7 +12,7 @@ def test_chat_extracts_alex_request(client):
     assert d["product_key"] == "laundry-detergent"
     assert d["max_total"] == 15
     assert d["needed_by"] == "2026-10-16"
-    assert d["pickup"] == "Bloomberg Center Lobby"
+    assert d["pickup"] == "The House at Cornell Tech"
     assert d["allow_switch"] is True
     assert "any brand or supplier" in out["approval_card"]["text"]
     assert "all-in" in out["approval_card"]["text"]
@@ -39,7 +39,7 @@ def test_full_walkthrough(client):
     assert "$13.91/buyer, saving $4.09" in run["message"]
     group = story["groups"][0]
     assert group["status"] == "FULFILLED"
-    assert group["supplier"] == "FreshBulk Co"
+    assert group["supplier"] == "BJ's Wholesale Club"
     assert group["price_per_buyer"] == "$13.91"
 
     # Step 7: savings land at checkout, for all three buyers.
