@@ -17,8 +17,11 @@ Requires Python 3.10+.
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app
 ```
+
+Changing the code? `uvicorn app.main:app --reload --reload-dir app` restarts the server on each
+save. Keep `--reload-dir app`: without it the server also watches `.venv` and can keep restarting.
 
 - **The app:** http://127.0.0.1:8000
 - **The API (interactive):** http://127.0.0.1:8000/docs
