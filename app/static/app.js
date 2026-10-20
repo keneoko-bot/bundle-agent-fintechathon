@@ -381,13 +381,13 @@ function getDeal(g) {
     if (input) { input.value = `I need ${g.product.toLowerCase().replace(/ \(.*\)/, "")}`; input.focus(); }
     return;
   }
-  // Pre-fill a mandate for THIS deal: cap a little above the group price, deadline
+  // Pre-fill a mandate for THIS deal: cap at the group price, deadline
   // a couple of days after it's ready — so the agent can join you straight in.
-  const cap = Math.ceil(g.price_cents / 100) + 3;
+  const cap = g.price_cents / 100;  // the deal's own all-in price: never authorise more than it
   const ready = new Date(g.ready_by); ready.setDate(ready.getDate() + 2);
   const neededBy = ready.toISOString().slice(0, 10);
   const draft = { product_key: cat.product_key, product: g.product, variant: g.variant || null,
-    max_total: cap, needed_by: neededBy, allow_switch: true, open_request: false };
+    max_total: cap, needed_by: neededBy, allow_switch: false, open_request: false };  // switching is opt-in
   addBubble("bundle", `Great pick! Here's the ${g.product} deal — authorize your agent and it'll join you into the group.`, "Bundle");
   addApproval({ draft, mode: "rule_based" });
 }

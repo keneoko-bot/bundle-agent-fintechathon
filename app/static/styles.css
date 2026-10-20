@@ -315,3 +315,7 @@ tr:last-child td { border-bottom: none; }
 .toast { position: fixed; bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom, 0px)); left: 50%;
   transform: translateX(-50%); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: var(--r-pill);
   font-size: 13.5px; font-weight: 600; max-width: 88vw; z-index: 40; box-shadow: var(--shadow-lg); }
+
+/* ---------- Demo-data note (bottom of Discover) ---------- */
+.demo-note { margin: 28px 4px 0; padding-top: 14px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 11.5px; line-height: 1.5; text-align: center; }

@@ -464,11 +464,11 @@ def unverified_student(session: Session = Depends(get_session), settings: Settin
 
 @router.post("/scenario/backup-supplier-gone")
 def backup_supplier_gone(session: Session = Depends(get_session), settings: Settings = Depends(get_settings)):
-    """Replaces the old one-click 'Disable FreshBulk', which on its own showed nothing."""
+    """Replaces the old one-click 'Disable supplier', which on its own showed nothing."""
     group = _group(session, None, "detergent")
     backup = session.scalar(select(Offer).join(Supplier).where(
         Supplier.name == "BJ's Wholesale Club", Offer.product_id == group.product_id))
-    while len(group.active_members) < 3:  # 3 buyers: enough for FreshBulk's minimum, not EcoClean's
+    while len(group.active_members) < 3:  # 3 buyers: enough for the backup's minimum, not the main offer's
         student = spawn_student(session)
         _seat(session, group, spawn_intent(session, student, group.product,
                                            cap_cents=group.offer.group_all_in + 200, days=4,
@@ -479,11 +479,12 @@ def backup_supplier_gone(session: Session = Depends(get_session), settings: Sett
     if core.now(session) < group.deadline:
         core.set_now(session, group.deadline)
     run = runner.run_agent(session, settings, "FORMATION_DEADLINE", group.id)
-    alt = (f"switched all 3 buyers to FreshBulk at {core.money(backup.group_all_in)} and checked out"
+    backup_name = backup.supplier.name if backup is not None else "the backup supplier"
+    alt = (f"switched all 3 buyers to {backup_name} at {core.money(backup.group_all_in)} and checked out"
            if backup is not None else "switched to the backup supplier")
     return _story(f"The detergent group has 3 of {group.offer.min_buyers} buyers at its deadline, and the "
-                  f"backup supplier (FreshBulk, needs 3) has just stopped selling.",
-                  f"With FreshBulk available, the agent would have {alt}. Without it, nothing fits everyone's "
+                  f"backup supplier ({backup_name}, needs 3) has just stopped selling.",
+                  f"With {backup_name} available, the agent would have {alt}. Without it, nothing fits everyone's "
                   f"limits, so it cancels and nobody is charged.", [run], session, [group])
 
 
