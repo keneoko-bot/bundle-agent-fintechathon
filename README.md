@@ -41,7 +41,7 @@ same limits enforced in code, with a rule-based parser for chat and a keyword ch
 The current mode is shown under **More**. To switch the AI on, copy `.env.example` to `.env`, add a
 key (OpenAI, Anthropic, or an OpenAI-compatible service such as DeepSeek or Qwen; see
 [Agent modes](#agent-modes)) and restart. Runs with `gpt-4.1-mini` are in the demo video and in
-`evidence/`.
+[`evidence/`](evidence/).
 
 ## Using the app
 
@@ -249,6 +249,12 @@ your own access control.
 `pytest` (68 tests) runs the walkthrough end to end, every Lab case, the permission tiers, the all-in cap,
 switch approval, chat memory, supplier deals, the front end being served, and the LLM path's
 guardrails, using a scripted fake model so no key is needed.
+
+## Execution evidence
+
+[`evidence/`](evidence/) holds the operation log and audit trail from a full session with
+`gpt-4.1-mini`: the walkthrough plus nine Lab scenarios, 16 agent runs in all. Its README lists what
+each run shows.
 
 ## Deployment
 
