@@ -36,6 +36,13 @@ Run the tests:
 pytest
 ```
 
+**AI on or off.** Without an API key, Bundle runs its deterministic workflows: the same tools and the
+same limits enforced in code, with a rule-based parser for chat and a keyword check for new listings.
+The current mode is shown under **More**. To switch the AI on, copy `.env.example` to `.env`, add a
+key (OpenAI, Anthropic, or an OpenAI-compatible service such as DeepSeek or Qwen; see
+[Agent modes](#agent-modes)) and restart. Runs with `gpt-4.1-mini` are in the demo video and in
+`evidence/`.
+
 ## Using the app
 
 A mobile-first web app with five tabs along the bottom. **You** (top right) switches between demo
